@@ -3,10 +3,6 @@ const fs = require("fs");
 
 let rawdata = fs.readFileSync('result.json');
 let list_link = JSON.parse(rawdata);
-// console.log(student);
-// for(let link of list_link) {
-//   console.log(link)
-// }
 
 (async () => {
   let list_page = []
@@ -22,26 +18,26 @@ let list_link = JSON.parse(rawdata);
   // for (let link of list_link) {
   //   console.log(link)
   // }
-  // const browser = await puppeteer.launch();
+  // const browser = await puppeteer.launch({headless: false, devtools: true});
   // const page = await browser.newPage();
-  let data = []
-  //show console
   // page.on('console', msg => console.log('PAGE LOG:', msg.text()));
   //disable image and font
-  // page.on('request', (req) => {
-  //   if(req.resourceType() === 'image'  || req.resourceType() === 'font' || req.resourceType() === 'stylesheet'){
-  //       req.abort();
-  //   }
-  //   else {
-  //       req.continue();
-  //   }
-  // })
   let words = []
-  for (let link of list_link) {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+  let data = []
 
+  for (let link of list_link) {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+
+    // page.on('request', (req) => {
+    //   if(req.resourceType() === 'image'  || req.resourceType() === 'font' || req.resourceType() === 'stylesheet'){
+    //       req.abort();
+    //   }
+    //   else {
+    //       req.continue();
+    //   }
+    // })
     console.log(link.link)
     if(link.level !== 'N5') break;
     // let link= link.link 
@@ -53,15 +49,30 @@ let list_link = JSON.parse(rawdata);
           main_word = main_word.innerHTML
           main_word = main_word.split(" ").join("")
           main_word = main_word.split("\n").join("")
+        } else {
+          main_word = ''
         }
-        phonetic_word = document.getElementsByClassName("phonetic-word")[0].innerHTML
-        // console.log(phonetic_word)
-        phonetic_word = phonetic_word.split(" ").join("")
-        phonetic_word = phonetic_word.split("\n").join("")
+        console.log(main_word)
+        // debugger;
 
-        han_viet_word = document.getElementsByClassName("han-viet-word")[0].innerHTML
-        han_viet_word = han_viet_word.split("\n").join("")
-        // console.log(han_viet_word)
+        phonetic_word = document.getElementsByClassName("phonetic-word")[0]
+        if(phonetic_word) {
+          phonetic_word = phonetic_word.innerHTML
+          phonetic_word = phonetic_word.split(" ").join("")
+          phonetic_word = phonetic_word.split("\n").join("")
+        } else {
+          phonetic_word = ''
+        }
+        console.log(phonetic_word)
+
+        han_viet_word = document.getElementsByClassName("han-viet-word")[0]
+        if(han_viet_word) {
+          han_viet_word = phonetic_word.innerHTML
+          han_viet_word = phonetic_word.split("\n").join("")
+        } else {
+          han_viet_word = ''
+        }
+        console.log(han_viet_word)
 
         mean_fr_word = document.querySelectorAll("mean-fr-word")
         // console.log(mean_fr_word)
@@ -70,7 +81,12 @@ let list_link = JSON.parse(rawdata);
         mean_fr_word.forEach(item => {
           mean_fr_words.push(item.innerText)
         })
-        type_word = document.getElementsByClassName("type-word")[0].innerHTML
+        type_word = document.getElementsByClassName("type-word")[0]
+        if(type_word) {
+          type_word = phonetic_word.innerHTML
+        } else {
+          type_word = ''
+        }
         // console.log(type_word)
 
         example_word = document.querySelectorAll("ng-example > div > div > span.japanese-char ")
