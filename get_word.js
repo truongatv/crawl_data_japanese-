@@ -24,8 +24,9 @@ let list_link = JSON.parse(rawdata);
   //disable image and font
   let words = []
   let data = []
-
-  for (let link of list_link) {
+  start = 101;
+  end = 150;
+  for (let j = start; j <= end; j++) {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   page.on('console', msg => console.log('PAGE LOG:', msg.text()));
@@ -38,12 +39,13 @@ let list_link = JSON.parse(rawdata);
     //       req.continue();
     //   }
     // })
-    console.log(link.link)
-    if(link.level !== 'N5') break;
+    console.log(list_link[j].link)
+    // if(link.level !== 'N5') break;
     // let link= link.link 
     await page.setViewport({ width: 1280, height: 720 });
-    await page.goto(link.link, {waitUntil: 'networkidle2'});
-    let result = await page.evaluate(() => {
+    await page.goto(list_link[j].link, {waitUntil: 'networkidle2'});
+    let result = await page.evaluate(({list_link, j}) => {
+      console.log(j)
         main_word = document.getElementsByClassName("main-word")[0]
         if(main_word) {
           main_word = main_word.innerHTML
@@ -119,6 +121,9 @@ let list_link = JSON.parse(rawdata);
           count++
         })
         result = {
+          index: j,
+          link: list_link[j].link,
+          level: list_link[j].level,
           main_word: main_word,
           phonetic_word: phonetic_word,
           han_viet_word: han_viet_word,
@@ -127,18 +132,24 @@ let list_link = JSON.parse(rawdata);
           example_words: example_words
         }
         return result
-    });
+    }, {list_link, j});
     console.log(result)
     words.push(result)
     await browser.close();
+    // for(let rs of words) {
+      await fs.writeFile('words_' + end + '.json', JSON.stringify(words) + "\n", function(err) {
+        if (err) throw err;
+      });
+    // }
 
     await sleepFunction(15000);
   }
-  for(let rs of words) {
-    await fs.appendFile(`words.json`, JSON.stringify(rs) + "\n", function(err) {
-      if (err) throw err;
-    });
-  }
+  // console.log(words)
+  // for(let rs of words) {
+  //   await fs.appendFile(`words.json`, JSON.stringify(rs) + "\n", function(err) {
+  //     if (err) throw err;
+  //   });
+  // }
   // await browser.close();
   
 })();
